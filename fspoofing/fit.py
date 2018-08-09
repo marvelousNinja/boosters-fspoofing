@@ -9,7 +9,6 @@ from fspoofing.generators import get_train_generator
 from fspoofing.generators import get_validation_generator
 from fspoofing.training import fit_model
 from fspoofing.utils import as_cuda
-from fspoofing.utils import pipeline
 
 def compute_loss(logits, labels):
     return torch.nn.functional.cross_entropy(logits, labels.long())

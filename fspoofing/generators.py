@@ -1,3 +1,5 @@
+from functools import partial
+
 import numpy as np
 
 from fspoofing.utils import get_image_and_label_pairs
@@ -5,12 +7,14 @@ from fspoofing.utils import pipeline
 
 def get_validation_generator():
     path_and_label_pairs = get_image_and_label_pairs('data/IDRND_FASDB_val')
+    cache = {}
+
     while True:
         np.random.shuffle(path_and_label_pairs)
         images = []
         labels = []
 
-        for image, label in map(pipeline, path_and_label_pairs):
+        for image, label in map(partial(pipeline, cache), path_and_label_pairs):
             images.append(image)
             labels.append(label)
 
@@ -22,12 +26,14 @@ def get_validation_generator():
 
 def get_train_generator():
     path_and_label_pairs = get_image_and_label_pairs('data/IDRND_FASDB_train')
+    cache = {}
+
     while True:
         np.random.shuffle(path_and_label_pairs)
         images = []
         labels = []
 
-        for image, label in map(pipeline, path_and_label_pairs):
+        for image, label in map(partial(pipeline, cache), path_and_label_pairs):
             images.append(image)
             labels.append(label)
 

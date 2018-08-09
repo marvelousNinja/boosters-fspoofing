@@ -1,4 +1,5 @@
 import glob
+from functools import partial
 import os
 
 import cv2
@@ -41,6 +42,15 @@ def normalize(image):
 def read_image(path):
     return cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGB)
 
+def read_image_cached(cache, preprocess, path):
+    image = cache.get(path)
+    if image is not None:
+        return image
+    else:
+        image = preprocess(read_image(path))
+        cache[path] = image
+        return image
+
 def crop_random(size, image):
     top_x = np.random.randint(image.shape[0] - size[0])
     top_y = np.random.randint(image.shape[1] - size[1])
@@ -52,11 +62,14 @@ def resize(size, image):
 def channels_first(image):
     return np.moveaxis(image, 2, 0)
 
-def pipeline(path_and_label):
+def fliplr(image):
+    return np.fliplr(image)
+
+def pipeline(cache, path_and_label):
     path, label = path_and_label
-    image = read_image(path)
-    image = resize((248, 248), image)
+    image = read_image_cached(cache, partial(resize, (248, 248)), path)
     image = crop_random((224, 224), image)
+    image = fliplr(image) if np.random.rand() < .5 else image
     image = normalize(image)
     image = channels_first(image)
     return (image, label)
