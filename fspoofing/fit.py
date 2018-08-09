@@ -9,6 +9,7 @@ from fspoofing.generators import get_train_generator
 from fspoofing.generators import get_validation_generator
 from fspoofing.training import fit_model
 from fspoofing.utils import as_cuda
+from fspoofing.utils import print_confusion_matrix
 
 def compute_loss(logits, labels):
     return torch.nn.functional.cross_entropy(logits, labels.long())
@@ -27,7 +28,7 @@ def fit():
         num_epochs=100,
         num_batches=515, # 8231 in train set
         validation_batches=63, # 1007 in val set
-        after_validation=None
+        after_validation=print_confusion_matrix
     )
 
 def prof():

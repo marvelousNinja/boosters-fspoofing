@@ -5,6 +5,8 @@ import os
 import cv2
 import numpy as np
 import torch
+from tabulate import tabulate
+from tqdm import tqdm
 
 def get_images_in(path):
     return np.sort(glob.glob(f'{path}/*.png'))
@@ -85,6 +87,19 @@ def from_numpy(obj, dtype=np.float32):
 
 def to_numpy(tensor):
     return tensor.data.cpu().numpy()
+
+def print_confusion_matrix(_, outputs, gt):
+    labels = np.argmax(outputs, axis=1)
+    true_negatives = sum(labels[gt == 0] == 0)
+    false_positives = sum(labels[gt == 0] == 1)
+
+    true_positives = sum(labels[gt == 1] == 1)
+    false_negatives = sum(labels[gt == 1] == 0)
+
+    tqdm.write(tabulate([
+        ['Pred Real', true_negatives, true_positives],
+        ['Pred Spoof', false_positives, false_negatives]
+    ], headers=['True Real', 'True Spoof'], tablefmt='grid'))
 
 if __name__ == '__main__':
     import pdb; pdb.set_trace()
