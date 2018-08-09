@@ -8,6 +8,7 @@ from fire import Fire
 from fspoofing.generators import get_train_generator
 from fspoofing.generators import get_validation_generator
 from fspoofing.training import fit_model
+from fspoofing.utils import as_cuda
 from fspoofing.utils import pipeline
 
 def compute_loss(logits, labels):
@@ -15,7 +16,7 @@ def compute_loss(logits, labels):
 
 def fit():
     np.random.seed(1991)
-    model = torchvision.models.squeezenet1_1(num_classes=2)
+    model = as_cuda(torchvision.models.squeezenet1_1(num_classes=2))
     optimizer = torch.optim.Adam(filter(lambda param: param.requires_grad, model.parameters()), .001)
 
     fit_model(
