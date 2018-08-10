@@ -8,6 +8,14 @@ import torch
 from tabulate import tabulate
 from tqdm import tqdm
 
+def get_train_validation_holdout_split(records):
+    np.random.shuffle(records)
+    n = len(records)
+    train = records[:int(n * .6)]
+    validation = records[int(n * .6):int(n * .75)]
+    holdout = records[int(n * .75)]
+    return train, validation, holdout
+
 def get_images_in(path):
     return np.sort(glob.glob(f'{path}/*.png'))
 
@@ -118,8 +126,8 @@ def print_confusion_matrix(_, outputs, gt):
     false_negatives = sum(labels[gt == 1] == 0)
 
     tqdm.write(tabulate([
-        ['Pred Real', true_negatives, true_positives],
-        ['Pred Spoof', false_positives, false_negatives]
+        ['Pred Real', true_negatives, false_negatives],
+        ['Pred Spoof', false_positives, true_positives]
     ], headers=['True Real', 'True Spoof'], tablefmt='grid'))
 
 if __name__ == '__main__':

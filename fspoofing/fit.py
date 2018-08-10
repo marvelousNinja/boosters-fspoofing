@@ -14,7 +14,9 @@ def compute_loss(logits, labels):
 
 def fit(num_epochs=100, limit=None, batch_size=16, lr=.001):
     np.random.seed(1991)
-    model = as_cuda(torchvision.models.squeezenet1_1(num_classes=2))
+    model = torchvision.models.resnet18(pretrained=True)
+    model.fc = torch.nn.Linear(model.fc.in_features, 2)
+    model = as_cuda(model)
     optimizer = torch.optim.Adam(filter(lambda param: param.requires_grad, model.parameters()), lr)
 
     fit_model(
