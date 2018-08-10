@@ -1,6 +1,6 @@
+import os
 import glob
 from functools import partial
-import os
 
 import cv2
 import numpy as np
@@ -69,9 +69,10 @@ def fliplr(image):
 
 def pipeline(cache, path_and_label):
     path, label = path_and_label
-    image = read_image_cached(cache, partial(resize, (248, 248)), path)
-    image = crop_random((224, 224), image)
-    image = fliplr(image) if np.random.rand() < .5 else image
+    image = read_image_cached(cache, partial(resize, (224, 224)), path)
+    # TODO AS: Doesn't seem to converge with augs yet
+    # image = crop_random((224, 224), image)
+    # image = fliplr(image) if np.random.rand() < .5 else image
     image = normalize(image)
     image = channels_first(image)
     return (image, label)

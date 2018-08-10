@@ -1,3 +1,4 @@
+import math
 from functools import partial
 
 import numpy as np
@@ -5,39 +6,37 @@ import numpy as np
 from fspoofing.utils import get_image_and_label_pairs
 from fspoofing.utils import pipeline
 
-def get_validation_generator():
-    path_and_label_pairs = get_image_and_label_pairs('data/IDRND_FASDB_val')
-    cache = {}
+class DataGenerator:
+    def __init__(self, records, batch_size, transform):
+        self.records = records
+        self.batch_size = batch_size
+        self.transform = transform
 
-    while True:
-        np.random.shuffle(path_and_label_pairs)
-        images = []
-        labels = []
+    def __iter__(self):
+        np.random.shuffle(self.records)
+        batch = []
 
-        for image, label in map(partial(pipeline, cache), path_and_label_pairs):
-            images.append(image)
-            labels.append(label)
+        for output in map(self.transform, self.records):
+            batch.append(output)
 
-            if len(images) >= 16:
-                yield np.stack(images), np.array(labels)
-                images = []
-                labels = []
+            if len(batch) >= self.batch_size:
+                split_outputs = list(zip(*batch))
+                yield map(np.stack, split_outputs)
+                batch = []
 
+        if len(batch) > 0:
+            split_outputs = list(zip(*batch))
+            yield map(np.stack, split_outputs)
 
-def get_train_generator():
-    path_and_label_pairs = get_image_and_label_pairs('data/IDRND_FASDB_train')
-    cache = {}
+    def __len__(self):
+        return math.ceil(len(self.records) / self.batch_size)
 
-    while True:
-        np.random.shuffle(path_and_label_pairs)
-        images = []
-        labels = []
+def get_validation_generator(batch_size, limit=None):
+    path_and_label_pairs = get_image_and_label_pairs('data/IDRND_FASDB_val')[:limit]
+    transform = partial(pipeline, {})
+    return DataGenerator(path_and_label_pairs, batch_size, transform)
 
-        for image, label in map(partial(pipeline, cache), path_and_label_pairs):
-            images.append(image)
-            labels.append(label)
-
-            if len(images) >= 16:
-                yield np.stack(images), np.array(labels)
-                images = []
-                labels = []
+def get_train_generator(batch_size, limit=None):
+    path_and_label_pairs = get_image_and_label_pairs('data/IDRND_FASDB_train')[:limit]
+    transform = partial(pipeline, {})
+    return DataGenerator(path_and_label_pairs, batch_size, transform)

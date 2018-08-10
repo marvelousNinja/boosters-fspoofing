@@ -1,8 +1,6 @@
 import torch
 import torchvision
-
 import numpy as np
-import torch
 from fire import Fire
 
 from fspoofing.generators import get_train_generator
@@ -14,20 +12,18 @@ from fspoofing.utils import print_confusion_matrix
 def compute_loss(logits, labels):
     return torch.nn.functional.cross_entropy(logits, labels.long())
 
-def fit():
+def fit(num_epochs=100, limit=None, batch_size=16, lr=.001):
     np.random.seed(1991)
     model = as_cuda(torchvision.models.squeezenet1_1(num_classes=2))
-    optimizer = torch.optim.Adam(filter(lambda param: param.requires_grad, model.parameters()), .001)
+    optimizer = torch.optim.Adam(filter(lambda param: param.requires_grad, model.parameters()), lr)
 
     fit_model(
         model=model,
-        train_generator=get_train_generator(),
-        validation_generator=get_validation_generator(),
+        train_generator=get_train_generator(batch_size, limit),
+        validation_generator=get_validation_generator(batch_size, limit),
         optimizer=optimizer,
         loss_fn=compute_loss,
-        num_epochs=100,
-        num_batches=515, # 8231 in train set
-        validation_batches=63, # 1007 in val set
+        num_epochs=num_epochs,
         after_validation=print_confusion_matrix
     )
 
