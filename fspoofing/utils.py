@@ -83,14 +83,16 @@ def pipe(funcs, arg):
 
 def pipeline(cache, path_and_label):
     path, label = path_and_label
-    preprocess = partial(pipe, [
-        crop_face,
-        partial(resize, (224, 224))
-    ])
-    image = read_image_cached(cache, preprocess, path)
+    # TODO AS: Face detection eats too much time
+    # preprocess = partial(pipe, [
+    #    crop_face,
+    #    partial(resize, (224, 224))
+    # ])
     # TODO AS: Doesn't seem to converge with augs yet
     # image = crop_random((224, 224), image)
     # image = fliplr(image) if np.random.rand() < .5 else image
+    preprocess = partial(resize, (224, 224))
+    image = read_image_cached(cache, preprocess, path)
     image = normalize(image)
     image = channels_first(image)
     return (image, label)
