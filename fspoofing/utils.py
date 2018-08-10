@@ -67,9 +67,27 @@ def channels_first(image):
 def fliplr(image):
     return np.fliplr(image)
 
+def crop_face(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    detector = cv2.CascadeClassifier('fspoofing/haar.xml')
+    faces = detector.detectMultiScale(gray, 1.3, 5)
+    if len(faces) > 0:
+        x, y, width, height = faces[0]
+        return image[y:y + height, x:x + width]
+    else:
+        return image
+
+def pipe(funcs, arg):
+    for func in funcs: arg = func(arg)
+    return arg
+
 def pipeline(cache, path_and_label):
     path, label = path_and_label
-    image = read_image_cached(cache, partial(resize, (224, 224)), path)
+    preprocess = partial(pipe, [
+        crop_face,
+        partial(resize, (224, 224))
+    ])
+    image = read_image_cached(cache, preprocess, path)
     # TODO AS: Doesn't seem to converge with augs yet
     # image = crop_random((224, 224), image)
     # image = fliplr(image) if np.random.rand() < .5 else image
