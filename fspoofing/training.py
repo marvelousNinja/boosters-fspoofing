@@ -17,6 +17,7 @@ def fit_model(
     for _ in tqdm(range(num_epochs)):
         train_loss = 0
         num_batches = len(train_generator)
+        model.train()
         for inputs, gt in tqdm(train_generator, total=num_batches):
             inputs, gt = from_numpy(inputs), from_numpy(gt)
             optimizer.zero_grad()
@@ -30,9 +31,10 @@ def fit_model(
         all_preds = []
         all_gt = []
         num_batches = len(validation_generator)
+        model.eval()
         for inputs, gt in tqdm(validation_generator, total=num_batches):
             inputs, gt = from_numpy(inputs), from_numpy(gt)
-            outputs = model.eval()(inputs)
+            outputs = model(inputs)
             val_loss += loss_fn(outputs, gt).item()
 
             all_preds.append(to_numpy(outputs))
