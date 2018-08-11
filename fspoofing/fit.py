@@ -17,7 +17,7 @@ def fit(num_epochs=100, limit=None, batch_size=16, lr=.001):
     model = torchvision.models.resnet18(pretrained=True)
     model.fc = torch.nn.Linear(model.fc.in_features, 2)
     model = as_cuda(model)
-    optimizer = torch.optim.Adam(filter(lambda param: param.requires_grad, model.parameters()), lr)
+    optimizer = torch.optim.SGD(filter(lambda param: param.requires_grad, model.parameters()), lr, momentum=.95, nesterov=True)
 
     fit_model(
         model=model,
