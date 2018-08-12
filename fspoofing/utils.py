@@ -117,7 +117,7 @@ def from_numpy(obj, dtype=np.float32):
 def to_numpy(tensor):
     return tensor.data.cpu().numpy()
 
-def print_confusion_matrix(_, outputs, gt):
+def print_confusion_matrix(outputs, gt):
     labels = np.argmax(outputs, axis=1)
     true_negatives = sum(labels[gt == 0] == 0)
     false_positives = sum(labels[gt == 0] == 1)

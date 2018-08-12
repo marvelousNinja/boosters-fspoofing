@@ -47,12 +47,13 @@ logdir
 .kaggle-cli
 .env
 *.hdf5
-data/*
+data/*/*
 
 *.so
 *.o
 *.pyc
 
 !/data/.gitkeep
-
+!/data/models/.gitkeep
+!/data/submissions/.gitkeep
 fit.profile

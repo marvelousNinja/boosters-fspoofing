@@ -28,7 +28,7 @@ def fit_model(
         train_loss /= num_batches
 
         val_loss = 0
-        all_preds = []
+        all_outputs = []
         all_gt = []
         num_batches = len(validation_generator)
         model.eval()
@@ -37,9 +37,10 @@ def fit_model(
             outputs = model(inputs)
             val_loss += loss_fn(outputs, gt).item()
 
-            all_preds.append(to_numpy(outputs))
+            all_outputs.append(to_numpy(outputs))
             all_gt.append(to_numpy(gt))
         val_loss /= num_batches
 
         tqdm.write(f'train loss {train_loss:.5f} - val loss {val_loss:.5f}')
-        if after_validation: after_validation(inputs, np.concatenate(all_preds), np.concatenate(all_gt))
+        if after_validation:
+            after_validation(val_loss, np.concatenate(all_outputs), np.concatenate(all_gt))
