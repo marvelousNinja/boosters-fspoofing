@@ -9,7 +9,10 @@ def save_checkpoint(model, path):
     torch.save(model, path)
 
 def load_checkpoint(path):
-    return as_cuda(torch.load(path))
+    if torch.cuda.is_available():
+        return as_cuda(torch.load(path))
+    else:
+        return torch.load(path, map_location='cpu')
 
 def generate_checkpoint_path(prefix, timestamp, epoch, loss):
     name = f'{prefix}-{timestamp}-{epoch:02d}-{loss:.5f}.pt'
