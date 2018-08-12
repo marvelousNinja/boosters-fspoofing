@@ -9,13 +9,14 @@ from fspoofing.utils import get_train_validation_holdout_split
 from fspoofing.utils import pipeline
 
 class DataGenerator:
-    def __init__(self, records, batch_size, transform):
+    def __init__(self, records, batch_size, transform, shuffle=True):
         self.records = records
         self.batch_size = batch_size
         self.transform = transform
+        self.shuffle = shuffle
 
     def __iter__(self):
-        np.random.shuffle(self.records)
+        if self.shuffle: np.random.shuffle(self.records)
         batch = []
 
         for output in map(self.transform, self.records):
@@ -51,4 +52,4 @@ def get_test_generator(batch_size, limit=None):
     paths = get_images_in('data/test')
     path_and_label_pairs = list(map(lambda path: (path, 0), paths))
     transform = partial(pipeline, {})
-    return DataGenerator(path_and_label_pairs[:limit], batch_size, transform)
+    return DataGenerator(path_and_label_pairs[:limit], batch_size, transform, shuffle=False)
