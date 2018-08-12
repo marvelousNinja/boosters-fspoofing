@@ -26,7 +26,7 @@ def predict(checkpoint_path, batch_size=8, limit=None):
     pred_labels = np.argmax(all_outputs, axis=1)
     ids = list(map(lambda path: path.split('/')[-1], get_images_in('data/test')))[:limit]
     df = pd.DataFrame({ 'id': ids, 'label': pred_labels })
-    df.to_csv('./data/sumbissions/__latest.csv', index=False)
+    df.to_csv('./data/submissions/__latest.csv', index=False)
 
 if __name__ == '__main__':
     Fire(predict)
