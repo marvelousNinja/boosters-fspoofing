@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import torch
 from fire import Fire
 from tqdm import tqdm
 
@@ -20,12 +21,10 @@ def predict(checkpoint_path, batch_size=8, limit=None):
     for inputs, gt in tqdm(test_generator, total=len(test_generator)):
         inputs, gt = from_numpy(inputs), from_numpy(gt)
         outputs = model(inputs)
-        all_outputs.append(to_numpy(outputs))
+        all_outputs.append(to_numpy(torch.nn.functional.softmax(outputs, dim=1)[:, 1]))
     all_outputs = np.concatenate(all_outputs)
-
-    pred_labels = np.argmax(all_outputs, axis=1)
     ids = list(map(lambda path: path.split('/')[-1], get_images_in('data/test')))[:limit]
-    df = pd.DataFrame({ 'id': ids, 'label': pred_labels })
+    df = pd.DataFrame({ 'id': ids, 'prob': all_outputs })
     df.to_csv('./data/submissions/__latest.csv', index=False)
 
 if __name__ == '__main__':
