@@ -12,13 +12,13 @@ from fspoofing.model_checkpoint import load_checkpoint
 from fspoofing.model_checkpoint import ModelCheckpoint
 from fspoofing.training import fit_model
 from fspoofing.utils import as_cuda
-from fspoofing.utils import print_confusion_matrix
+from fspoofing.utils import confusion_matrix
 
 def compute_loss(logits, labels):
     return torch.nn.functional.cross_entropy(logits, labels.long())
 
 def after_validation(model_checkpoint, val_loss, outputs, gt):
-    print_confusion_matrix(outputs, gt)
+    tqdm.write(confusion_matrix(outputs, gt, [0, 1]))
     model_checkpoint.step(val_loss)
 
 def fit(num_epochs=100, limit=None, batch_size=16, lr=.001, checkpoint_path=None):
@@ -26,7 +26,6 @@ def fit(num_epochs=100, limit=None, batch_size=16, lr=.001, checkpoint_path=None
 
     if checkpoint_path:
         model = load_checkpoint(checkpoint_path)
-        import pdb; pdb.set_trace()
     else:
         model = torchvision.models.resnet18(pretrained=True)
         model.fc = torch.nn.Linear(model.fc.in_features, 2)

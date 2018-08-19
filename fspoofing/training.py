@@ -24,7 +24,7 @@ def fit_model(
             loss = loss_fn(model(inputs), gt)
             loss.backward()
             optimizer.step()
-            train_loss += loss.item()
+            train_loss += loss.data[0]
         train_loss /= num_batches
 
         val_loss = 0
@@ -33,12 +33,11 @@ def fit_model(
         num_batches = len(validation_generator)
         model.eval()
         for inputs, gt in tqdm(validation_generator, total=num_batches):
+            all_gt.append(gt)
             inputs, gt = from_numpy(inputs), from_numpy(gt)
             outputs = model(inputs)
-            val_loss += loss_fn(outputs, gt).item()
-
+            val_loss += loss_fn(outputs, gt).data[0]
             all_outputs.append(to_numpy(outputs))
-            all_gt.append(to_numpy(gt))
         val_loss /= num_batches
 
         tqdm.write(f'train loss {train_loss:.5f} - val loss {val_loss:.5f}')

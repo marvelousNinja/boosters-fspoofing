@@ -110,25 +110,29 @@ def as_cuda(tensor):
         return tensor.cuda()
     return tensor
 
-def from_numpy(obj, dtype=np.float32):
-    tensor = torch.Tensor(torch.from_numpy(obj.astype(dtype)))
-    return as_cuda(tensor)
+def from_numpy(obj):
+    if torch.cuda.is_available():
+        return torch.cuda.FloatTensor(obj)
+    else:
+        return torch.FloatTensor(obj)
 
 def to_numpy(tensor):
     return tensor.data.cpu().numpy()
 
-def print_confusion_matrix(outputs, gt):
-    labels = np.argmax(outputs, axis=1)
-    true_negatives = sum(labels[gt == 0] == 0)
-    false_positives = sum(labels[gt == 0] == 1)
+def confusion_matrix(pred_labels, true_labels, labels):
+    pred_labels = pred_labels.reshape(-1)
+    true_labels = true_labels.reshape(-1)
+    columns = [list(map(lambda label: f'Pred {label}', labels))]
+    for true_label in labels:
+        counts = []
+        preds_for_label = pred_labels[np.argwhere(true_labels == true_label)]
+        for predicted_label in labels:
+            counts.append((preds_for_label == predicted_label).sum())
+        columns.append(counts)
 
-    true_positives = sum(labels[gt == 1] == 1)
-    false_negatives = sum(labels[gt == 1] == 0)
-
-    tqdm.write(tabulate([
-        ['Pred Real', true_negatives, false_negatives],
-        ['Pred Spoof', false_positives, true_positives]
-    ], headers=['True Real', 'True Spoof'], tablefmt='grid'))
+    headers = list(map(lambda label: f'True {label}', labels))
+    rows = np.column_stack(columns)
+    return tabulate(rows, headers, 'grid')
 
 if __name__ == '__main__':
     import pdb; pdb.set_trace()

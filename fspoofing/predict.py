@@ -24,7 +24,7 @@ def predict(checkpoint_path, batch_size=8, limit=None):
         all_outputs.append(to_numpy(torch.nn.functional.softmax(outputs, dim=1)[:, 1]))
     all_outputs = np.concatenate(all_outputs)
     ids = list(map(lambda path: path.split('/')[-1], get_images_in('data/test')))[:limit]
-    df = pd.DataFrame({ 'id': ids, 'prob': all_outputs })
+    df = pd.DataFrame({'id': ids, 'prob': all_outputs})
     df.to_csv('./data/submissions/__latest.csv', index=False)
 
 if __name__ == '__main__':
