@@ -98,9 +98,9 @@ def pipeline(cache, path_and_label):
     # ])
     # TODO AS: Doesn't seem to converge with augs yet
     # image = crop_random((224, 224), image)
-    # image = fliplr(image) if np.random.rand() < .5 else image
     preprocess = partial(resize, (224, 224))
     image = read_image_cached(cache, preprocess, path)
+    image = fliplr(image) if np.random.rand() < .5 else image
     image = normalize(image)
     image = channels_first(image)
     return (image, label)
