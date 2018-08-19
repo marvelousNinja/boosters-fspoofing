@@ -18,7 +18,7 @@ def compute_loss(logits, labels):
     return torch.nn.functional.cross_entropy(logits, labels.long())
 
 def after_validation(model_checkpoint, val_loss, outputs, gt):
-    tqdm.write(confusion_matrix(outputs, gt, [0, 1]))
+    tqdm.write(confusion_matrix(np.argmax(outputs, axis=1), gt, [0, 1]))
     model_checkpoint.step(val_loss)
 
 def fit(num_epochs=100, limit=None, batch_size=16, lr=.001, checkpoint_path=None):
